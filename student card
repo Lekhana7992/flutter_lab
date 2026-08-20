@@ -1,0 +1,138 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+void main() {
+  runApp(
+    ChangeNotifierProvider<StudentData>(
+      create: (context) => StudentData(),
+      builder: (context, child) => const StudentApp(),
+    ),
+  );
+}
+
+// Data Model
+class StudentData extends ChangeNotifier {
+  String _name = '';
+  String _cgpa = '';
+  String _branch = '';
+
+  String get name => _name;
+  String get cgpa => _cgpa;
+  String get branch => _branch;
+
+  void updateName(String value) {
+    _name = value;
+    notifyListeners();
+  }
+
+  void updateCgpa(String value) {
+    _cgpa = value;
+    notifyListeners();
+  }
+
+  void updateBranch(String value) {
+    _branch = value;
+    notifyListeners();
+  }
+}
+
+class StudentApp extends StatelessWidget {
+  const StudentApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.indigo),
+      home: const StudentFormPage(),
+    );
+  }
+}
+
+class StudentFormPage extends StatelessWidget {
+  const StudentFormPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Student Profile Form'),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            StudentTextField(
+              label: 'Student Name',
+              icon: Icons.person,
+              onChanged: (val) => context.read<StudentData>().updateName(val),
+            ),
+            const SizedBox(height: 16),
+            StudentTextField(
+              label: 'CGPA',
+              icon: Icons.school,
+              keyboardType: TextInputType.number,
+              onChanged: (val) => context.read<StudentData>().updateCgpa(val),
+            ),
+            const SizedBox(height: 16),
+            StudentTextField(
+              label: 'Branch',
+              icon: Icons.account_tree,
+              onChanged: (val) => context.read<StudentData>().updateBranch(val),
+            ),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 16),
+            Consumer<StudentData>(
+              builder: (context, data, child) {
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Text('Name: ${data.name.isEmpty ? 'N/A' : data.name}'),
+                        Text('CGPA: ${data.cgpa.isEmpty ? 'N/A' : data.cgpa}'),
+                        Text('Branch: ${data.branch.isEmpty ? 'N/A' : data.branch}'),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class StudentTextField extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final TextInputType keyboardType;
+  final ValueChanged<String> onChanged;
+
+  const StudentTextField({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onChanged,
+    this.keyboardType = TextInputType.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      onChanged: onChanged,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+      ),
+    );
+  }
+}
