@@ -1,0 +1,174 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const StudentInformationApp());
+}
+
+// Main Application
+class StudentInformationApp extends StatelessWidget {
+  const StudentInformationApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Student Information',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.grey[100],
+      ),
+      home: const StudentHomePage(),
+    );
+  }
+}
+
+// Home Page
+class StudentHomePage extends StatelessWidget {
+  const StudentHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Student Information',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+      ),
+
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: const [
+
+              // Student 1
+              StudentCard(
+                name: 'Lekhana',
+                branch: 'CSE',
+                cgpa: '9.2',
+                icon: Icons.person,
+              ),
+
+              SizedBox(height: 15),
+
+              // Student 2
+              StudentCard(
+                name: 'usha',
+                branch: 'ECE',
+                cgpa: '8.7',
+                icon: Icons.school,
+              ),
+
+              SizedBox(height: 15),
+
+              // Student 3
+              StudentCard(
+                name: 'Sneha',
+                branch: 'IT',
+                cgpa: '9.5',
+                icon: Icons.account_circle,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Reusable Custom StudentCard Widget
+class StudentCard extends StatelessWidget {
+  final String name;
+  final String branch;
+  final String cgpa;
+  final IconData icon;
+
+  const StudentCard({
+    super.key,
+    required this.name,
+    required this.branch,
+    required this.cgpa,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+
+        child: Row(
+          children: [
+
+            // Student Icon
+            CircleAvatar(
+              radius: 35,
+              backgroundColor: Colors.blue[100],
+              child: Icon(
+                icon,
+                size: 40,
+                color: Colors.blue,
+              ),
+            ),
+
+            const SizedBox(width: 20),
+
+            // Student Details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  // Student Name
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Branch
+                  Text(
+                    'Branch: $branch',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                    ),
+                  ),
+
+                  const SizedBox(height: 5),
+
+                  // CGPA
+                  Text(
+                    'CGPA: $cgpa',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
