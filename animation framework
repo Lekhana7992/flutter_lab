@@ -1,0 +1,95 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+void main() {
+  runApp(
+    ChangeNotifierProvider<AnimationModel>(
+      create: (context) => AnimationModel(),
+      builder: (context, child) => const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: InteractiveAnimationPage(),
+      ),
+    ),
+  );
+}
+
+class AnimationModel extends ChangeNotifier {
+  double _size = 100.0;
+  Color _color = Colors.indigo;
+  double _rotation = 0.0;
+  bool _isExpanded = false;
+
+  double get size => _size;
+  Color get color => _color;
+  double get rotation => _rotation;
+  bool get isExpanded => _isExpanded;
+
+  void toggleAnimation() {
+    _isExpanded = !_isExpanded;
+    _size = _isExpanded ? 250.0 : 100.0;
+    _color = _isExpanded ? Colors.teal : Colors.indigo;
+    _rotation = _isExpanded ? 1.0 : 0.0;
+    notifyListeners();
+  }
+}
+
+class InteractiveAnimationPage extends StatelessWidget {
+  const InteractiveAnimationPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dynamic Motion Control'),
+        elevation: 2,
+      ),
+      body: Center(
+        child: Consumer<AnimationModel>(
+          builder: (context, model, child) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedRotation(
+                  turns: model.rotation,
+                  duration: const Duration(milliseconds: 800),
+                  curve: Curves.easeInOutBack,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeInOut,
+                    width: model.size,
+                    height: model.size,
+                    decoration: BoxDecoration(
+                      color: model.color,
+                      borderRadius: BorderRadius.circular(model.isExpanded ? 50 : 20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.auto_awesome,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 80),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                  onPressed: () => model.toggleAnimation(),
+                  icon: Icon(model.isExpanded ? Icons.compress : Icons.expand),
+                  label: Text(model.isExpanded ? 'Collapse Elements' : 'Expand Elements'),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
