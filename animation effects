@@ -1,8 +1,13 @@
+
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp());
 }
+
+// ============================================================
+// MAIN APP
+// ============================================================
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -11,137 +16,524 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const AnimationPage(),
+      title: 'Flutter Animation Demo',
+
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+        ),
+      ),
+
+      home: const AnimationHomePage(),
     );
   }
 }
 
-class AnimationPage extends StatefulWidget {
-  const AnimationPage({super.key});
+// ============================================================
+// HOME PAGE
+// ============================================================
+
+class AnimationHomePage extends StatefulWidget {
+  const AnimationHomePage({super.key});
 
   @override
-  State<AnimationPage> createState() => _AnimationPageState();
+  State<AnimationHomePage> createState() => _AnimationHomePageState();
 }
 
-class _AnimationPageState extends State<AnimationPage>
-    with SingleTickerProviderStateMixin {
+class _AnimationHomePageState extends State<AnimationHomePage> {
 
-  late AnimationController _controller;
-
-  late Animation<double> fadeAnimation;
-  late Animation<Offset> slideAnimation;
-  late Animation<double> scaleAnimation;
-  late Animation<double> rotationAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Animation Controller
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
-
-    // Fade Animation
-    fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(_controller);
-
-    // Slide Animation
-    slideAnimation = Tween<Offset>(
-      begin: const Offset(-1.0, 0.0),
-      end: Offset.zero,
-    ).animate(_controller);
-
-    // Scale Animation
-    scaleAnimation = Tween<double>(
-      begin: 0.5,
-      end: 1.0,
-    ).animate(_controller);
-
-    // Rotation Animation
-    rotationAnimation = Tween<double>(
-      begin: 0.0,
-      end: 2 * 3.14159,
-    ).animate(_controller);
-  }
-
-  void startAnimation() {
-    _controller.reset();
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  // Animation state variables
+  bool isFade = false;
+  bool isSlide = false;
+  bool isScale = false;
+  bool isRotate = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
+      // ======================================================
+      // APP BAR
+      // ======================================================
+
       appBar: AppBar(
-        title: const Text('Animation Effects'),
-        backgroundColor: Colors.blue,
+        title: const Text(
+          'Flutter Animation Demo',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+
+        backgroundColor: Colors.deepPurple,
+
+        // AppBar text and icon color
+        foregroundColor: Colors.white,
+
+        elevation: 10,
       ),
 
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+      // ======================================================
+      // BODY
+      // ======================================================
 
-            // Fade + Slide + Scale + Rotation
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return FadeTransition(
-                  opacity: fadeAnimation,
+      body: Container(
+        width: double.infinity,
 
-                  child: SlideTransition(
-                    position: slideAnimation,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF6A1B9A),
+              Color(0xFF4527A0),
+              Color(0xFF283593),
+            ],
 
-                    child: ScaleTransition(
-                      scale: scaleAnimation,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
 
-                      child: RotationTransition(
-                        turns: Tween<double>(
-                          begin: 0.0,
-                          end: 1.0,
-                        ).animate(_controller),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
 
-                        child: Container(
-                          width: 150,
-                          height: 150,
-                          color: Colors.orange,
-                          child: const Center(
-                            child: Text(
-                              'Flutter',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
+          child: Column(
+            children: [
+
+              // ==================================================
+              // TITLE
+              // ==================================================
+
+              const SizedBox(height: 10),
+
+              const Icon(
+                Icons.animation,
+                color: Colors.white,
+                size: 70,
+              ),
+
+              const SizedBox(height: 10),
+
+              const Text(
+                'Animation Effects',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              const Text(
+                'Fade • Slide • Scale • Rotation',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 16,
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // ==================================================
+              // FADE ANIMATION
+              // ==================================================
+
+              animationTitle(
+                'Fade Animation',
+                Icons.opacity,
+              ),
+
+              const SizedBox(height: 15),
+
+              AnimatedOpacity(
+                opacity: isFade ? 1.0 : 0.2,
+
+                duration: const Duration(
+                  seconds: 1,
+                ),
+
+                curve: Curves.easeInOut,
+
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    shape: BoxShape.circle,
+
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black45,
+                        blurRadius: 15,
+                        spreadRadius: 3,
+                      ),
+                    ],
+                  ),
+
+                  child: const Icon(
+                    Icons.favorite,
+                    color: Colors.white,
+                    size: 60,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              animationButton(
+                text: isFade ? 'Fade Out' : 'Fade In',
+                icon: Icons.opacity,
+                onPressed: () {
+                  setState(() {
+                    isFade = !isFade;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 35),
+
+              // ==================================================
+              // SLIDE ANIMATION
+              // ==================================================
+
+              animationTitle(
+                'Slide Animation',
+                Icons.swap_horiz,
+              ),
+
+              const SizedBox(height: 15),
+
+              AnimatedSlide(
+                offset: isSlide
+                    ? const Offset(0, 0)
+                    : const Offset(-1, 0),
+
+                duration: const Duration(
+                  seconds: 1,
+                ),
+
+                curve: Curves.easeInOut,
+
+                child: Container(
+                  width: 150,
+                  height: 100,
+
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+
+                    borderRadius:
+                        BorderRadius.circular(25),
+
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black45,
+                        blurRadius: 15,
+                        offset: Offset(0, 8),
+                      ),
+                    ],
+                  ),
+
+                  child: const Icon(
+                    Icons.directions_run,
+                    color: Colors.white,
+                    size: 60,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              animationButton(
+                text: isSlide
+                    ? 'Slide Back'
+                    : 'Slide',
+                icon: Icons.swap_horiz,
+                onPressed: () {
+                  setState(() {
+                    isSlide = !isSlide;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 35),
+
+              // ==================================================
+              // SCALE ANIMATION
+              // ==================================================
+
+              animationTitle(
+                'Scale Animation',
+                Icons.zoom_in,
+              ),
+
+              const SizedBox(height: 15),
+
+              AnimatedScale(
+                scale: isScale ? 1.5 : 0.7,
+
+                duration: const Duration(
+                  seconds: 1,
+                ),
+
+                curve: Curves.elasticOut,
+
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+
+                  decoration: BoxDecoration(
+                    color: Colors.amber,
+
+                    shape: BoxShape.circle,
+
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black45,
+                        blurRadius: 15,
+                        spreadRadius: 3,
+                      ),
+                    ],
+                  ),
+
+                  child: const Icon(
+                    Icons.star,
+                    color: Colors.white,
+                    size: 60,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              animationButton(
+                text: isScale
+                    ? 'Scale Down'
+                    : 'Scale Up',
+                icon: Icons.zoom_in,
+                onPressed: () {
+                  setState(() {
+                    isScale = !isScale;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 35),
+
+              // ==================================================
+              // ROTATION ANIMATION
+              // ==================================================
+
+              animationTitle(
+                'Rotation Animation',
+                Icons.rotate_right,
+              ),
+
+              const SizedBox(height: 15),
+
+              AnimatedRotation(
+                turns: isRotate ? 1 : 0,
+
+                duration: const Duration(
+                  seconds: 1,
+                ),
+
+                curve: Curves.easeInOut,
+
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+
+                  decoration: BoxDecoration(
+                    color: Colors.cyan,
+
+                    shape: BoxShape.circle,
+
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black45,
+                        blurRadius: 15,
+                        spreadRadius: 3,
+                      ),
+                    ],
+                  ),
+
+                  child: const Icon(
+                    Icons.settings,
+                    color: Colors.white,
+                    size: 60,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              animationButton(
+                text: isRotate
+                    ? 'Rotate Back'
+                    : 'Rotate',
+                icon: Icons.rotate_right,
+                onPressed: () {
+                  setState(() {
+                    isRotate = !isRotate;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 40),
+
+              // ==================================================
+              // INFORMATION CARD
+              // ==================================================
+
+              Container(
+                width: double.infinity,
+
+                padding: const EdgeInsets.all(20),
+
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(
+                    alpha: 0.15,
+                  ),
+
+                  borderRadius:
+                      BorderRadius.circular(20),
+
+                  border: Border.all(
+                    color: Colors.white30,
+                  ),
+
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+
+                child: const Column(
+                  children: [
+
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.white,
+                      size: 35,
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Text(
+                      'Animation Types',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
 
-            const SizedBox(height: 50),
+                    SizedBox(height: 10),
 
-            ElevatedButton(
-              onPressed: startAnimation,
-              child: const Text('Start Animation'),
-            ),
-          ],
+                    Text(
+                      'Fade changes opacity.\n'
+                      'Slide moves the widget.\n'
+                      'Scale changes the size.\n'
+                      'Rotation rotates the widget.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 15,
+                        height: 1.6,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 30),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // ANIMATION TITLE WIDGET
+  // ============================================================
+
+  Widget animationTitle(
+    String title,
+    IconData icon,
+  ) {
+    return Row(
+      mainAxisAlignment:
+          MainAxisAlignment.center,
+
+      children: [
+        Icon(
+          icon,
+          color: Colors.white,
+          size: 25,
+        ),
+
+        const SizedBox(width: 10),
+
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 21,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // ANIMATION BUTTON
+  // ============================================================
+
+  Widget animationButton({
+    required String text,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton.icon(
+
+      onPressed: onPressed,
+
+      icon: Icon(icon),
+
+      label: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+
+      style: ElevatedButton.styleFrom(
+
+        // Button background
+        backgroundColor: Colors.white,
+
+        // Text and icon color
+        foregroundColor: Colors.deepPurple,
+
+        elevation: 8,
+
+        shadowColor: Colors.black54,
+
+        padding: const EdgeInsets.symmetric(
+          horizontal: 25,
+          vertical: 14,
+        ),
+
+        shape: RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(18),
         ),
       ),
     );
   }
 }
+
