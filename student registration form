@@ -1,0 +1,228 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const StudentRegistrationApp());
+}
+
+class StudentRegistrationApp extends StatelessWidget {
+  const StudentRegistrationApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: StudentRegistrationPage(),
+    );
+  }
+}
+
+class StudentRegistrationPage extends StatefulWidget {
+  @override
+  State<StudentRegistrationPage> createState() =>
+      _StudentRegistrationPageState();
+}
+
+class _StudentRegistrationPageState
+    extends State<StudentRegistrationPage> {
+
+  String? department;
+  String? gender;
+  bool termsAccepted = false;
+
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Student Registration Portal"),
+        backgroundColor: Colors.blue,
+      ),
+
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            const Text(
+              "Student Registration",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Student Name
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: "Student Name",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.person),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // Email
+            TextField(
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: "Email",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.email),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // Phone Number
+            TextField(
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: "Phone Number",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.phone),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // Department
+            DropdownButtonFormField<String>(
+              decoration: const InputDecoration(
+                labelText: "Department",
+                border: OutlineInputBorder(),
+              ),
+              value: department,
+              items: const [
+                DropdownMenuItem(
+                  value: "CSE",
+                  child: Text("Computer Science"),
+                ),
+                DropdownMenuItem(
+                  value: "ECE",
+                  child: Text("Electronics and Communication"),
+                ),
+                DropdownMenuItem(
+                  value: "EEE",
+                  child: Text("Electrical and Electronics"),
+                ),
+                DropdownMenuItem(
+                  value: "MECH",
+                  child: Text("Mechanical"),
+                ),
+                DropdownMenuItem(
+                  value: "CIVIL",
+                  child: Text("Civil"),
+                ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  department = value;
+                });
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            // Gender
+            const Text(
+              "Gender",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            RadioListTile<String>(
+              title: const Text("Male"),
+              value: "Male",
+              groupValue: gender,
+              onChanged: (value) {
+                setState(() {
+                  gender = value;
+                });
+              },
+            ),
+
+            RadioListTile<String>(
+              title: const Text("Female"),
+              value: "Female",
+              groupValue: gender,
+              onChanged: (value) {
+                setState(() {
+                  gender = value;
+                });
+              },
+            ),
+
+            RadioListTile<String>(
+              title: const Text("Other"),
+              value: "Other",
+              groupValue: gender,
+              onChanged: (value) {
+                setState(() {
+                  gender = value;
+                });
+              },
+            ),
+
+            // Terms and Conditions
+            CheckboxListTile(
+              title: const Text(
+                "I accept the Terms & Conditions",
+              ),
+              value: termsAccepted,
+              onChanged: (value) {
+                setState(() {
+                  termsAccepted = value!;
+                });
+              },
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+
+            const SizedBox(height: 20),
+
+            // Register Button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (termsAccepted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Registration Successful!"),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Please accept Terms & Conditions",
+                        ),
+                      ),
+                    );
+                  }
+                },
+                child: const Text(
+                  "REGISTER",
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
