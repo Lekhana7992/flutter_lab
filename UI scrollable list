@@ -1,0 +1,208 @@
+
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "Product App",
+      home: ProductPage(),
+    );
+  }
+}
+
+class ProductPage extends StatefulWidget {
+  @override
+  State<ProductPage> createState() => _ProductPageState();
+}
+
+class _ProductPageState extends State<ProductPage> {
+  List products = [];
+
+  bool isLoading = true;
+  String errorMessage = "";
+
+  // Fetch product data
+  Future<void> fetchProducts() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = "";
+      });
+
+      final response = await http.get(
+        Uri.parse("https://fakestoreapi.com/products"),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          products = jsonDecode(response.body);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          errorMessage = "Failed to load products";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        errorMessage = "Something went wrong. Please try again.";
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProducts();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Product List"),
+        backgroundColor: Colors.blue,
+      ),
+
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+
+          : errorMessage.isNotEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error,
+                        size: 60,
+                        color: Colors.red,
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      Text(
+                        errorMessage,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      ElevatedButton(
+                        onPressed: fetchProducts,
+                        child: const Text("Retry"),
+                      ),
+                    ],
+                  ),
+                )
+
+              : ListView.builder(
+                  padding: const EdgeInsets.all(10),
+                  itemCount: products.length,
+
+                  itemBuilder: (context, index) {
+                    final product = products[index];
+
+                    return Card(
+                      elevation: 4,
+                      margin: const EdgeInsets.only(bottom: 12),
+
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+
+                        child: Row(
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
+
+                          children: [
+
+                            // Product Image
+                            Image.network(
+                              product["image"],
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.contain,
+
+                              errorBuilder:
+                                  (context, error, stackTrace) {
+                                return const SizedBox(
+                                  width: 100,
+                                  height: 100,
+                                  child: Icon(
+                                    Icons.image_not_supported,
+                                    size: 50,
+                                  ),
+                                );
+                              },
+                            ),
+
+                            const SizedBox(width: 15),
+
+                            // Product Details
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+
+                                children: [
+
+                                  // Title
+                                  Text(
+                                    product["title"],
+                                    maxLines: 2,
+                                    overflow:
+                                        TextOverflow.ellipsis,
+
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  // Category
+                                  Text(
+                                    "Category: ${product["category"]}",
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  // Price
+                                  Text(
+                                    "\$${product["price"]}",
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+    );
+  }
+}
+
