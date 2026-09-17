@@ -1,0 +1,323 @@
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const StudentRegistrationApp());
+}
+
+class StudentRegistrationApp extends StatelessWidget {
+  const StudentRegistrationApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: StudentRegistrationPage(),
+    );
+  }
+}
+
+class StudentRegistrationPage extends StatefulWidget {
+  @override
+  State<StudentRegistrationPage> createState() =>
+      _StudentRegistrationPageState();
+}
+
+class _StudentRegistrationPageState
+    extends State<StudentRegistrationPage> {
+
+  final _formKey = GlobalKey<FormState>();
+
+  String? department;
+  String? gender;
+  bool termsAccepted = false;
+
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Student Registration Portal"),
+        backgroundColor: Colors.blue,
+      ),
+
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+
+        child: Form(
+          key: _formKey,
+
+          child: Column(
+            children: [
+
+              const Text(
+                "Student Registration",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Student Name
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: "Student Name",
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Please enter student name";
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 15),
+
+              // Email
+              TextFormField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.email),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Please enter email";
+                  }
+
+                  if (!value.contains("@") || !value.contains(".")) {
+                    return "Please enter a valid email";
+                  }
+
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 15),
+
+              // Phone Number
+              TextFormField(
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: "Phone Number",
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.phone),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Please enter phone number";
+                  }
+
+                  if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+                    return "Phone number must contain 10 digits";
+                  }
+
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 15),
+
+              // Department
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: "Department",
+                  border: OutlineInputBorder(),
+                ),
+
+                value: department,
+
+                items: const [
+                  DropdownMenuItem(
+                    value: "CSE",
+                    child: Text("Computer Science"),
+                  ),
+                  DropdownMenuItem(
+                    value: "ECE",
+                    child: Text("Electronics and Communication"),
+                  ),
+                  DropdownMenuItem(
+                    value: "EEE",
+                    child: Text("Electrical and Electronics"),
+                  ),
+                  DropdownMenuItem(
+                    value: "MECH",
+                    child: Text("Mechanical"),
+                  ),
+                  DropdownMenuItem(
+                    value: "CIVIL",
+                    child: Text("Civil"),
+                  ),
+                ],
+
+                onChanged: (value) {
+                  setState(() {
+                    department = value;
+                  });
+                },
+
+                validator: (value) {
+                  if (value == null) {
+                    return "Please select department";
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              // Gender
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Gender",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              RadioListTile<String>(
+                title: const Text("Male"),
+                value: "Male",
+                groupValue: gender,
+                onChanged: (value) {
+                  setState(() {
+                    gender = value;
+                  });
+                },
+              ),
+
+              RadioListTile<String>(
+                title: const Text("Female"),
+                value: "Female",
+                groupValue: gender,
+                onChanged: (value) {
+                  setState(() {
+                    gender = value;
+                  });
+                },
+              ),
+
+              RadioListTile<String>(
+                title: const Text("Other"),
+                value: "Other",
+                groupValue: gender,
+                onChanged: (value) {
+                  setState(() {
+                    gender = value;
+                  });
+                },
+              ),
+
+              // Gender error message
+              if (gender == null)
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 16),
+                    child: Text(
+                      "Please select gender",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 10),
+
+              // Terms and Conditions
+              CheckboxListTile(
+                title: const Text(
+                  "I accept the Terms & Conditions",
+                ),
+                value: termsAccepted,
+                onChanged: (value) {
+                  setState(() {
+                    termsAccepted = value ?? false;
+                  });
+                },
+                controlAffinity:
+                    ListTileControlAffinity.leading,
+              ),
+
+              // Terms error
+              if (!termsAccepted)
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 16),
+                    child: Text(
+                      "Please accept Terms & Conditions",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 20),
+
+              // Register Button
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+
+                    bool formValid =
+                        _formKey.currentState!.validate();
+
+                    if (gender == null) {
+                      formValid = false;
+                    }
+
+                    if (!termsAccepted) {
+                      formValid = false;
+                    }
+
+                    if (formValid) {
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Registration Successful!",
+                          ),
+                        ),
+                      );
+
+                    } else {
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Please correct the errors",
+                          ),
+                        ),
+                      );
+                    }
+                  },
+
+                  child: const Text(
+                    "REGISTER",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
