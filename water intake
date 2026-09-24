@@ -1,0 +1,235 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const WaterTrackerApp());
+}
+
+// ======================================================
+// MAIN APP
+// ======================================================
+
+class WaterTrackerApp extends StatelessWidget {
+  const WaterTrackerApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Smart Water Tracker',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.cyan,
+          brightness: Brightness.light,
+        ),
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+// ======================================================
+// HOME PAGE
+// ======================================================
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class HomePageState extends State<HomePage> {
+  int dailyGoal = 2500;
+  int totalWater = 0;
+  int entryCount = 0;
+  List<int> waterEntries = [];
+
+  void addWater(int amount) {
+    setState(() {
+      totalWater += amount;
+      entryCount++;
+      waterEntries.add(amount);
+    });
+  }
+
+  void resetWater() {
+    setState(() {
+      totalWater = 0;
+      entryCount = 0;
+      waterEntries.clear();
+    });
+  }
+
+  void showResetConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          icon: const Icon(Icons.refresh, color: Colors.red),
+          title: const Text('Reset Water Intake?'),
+          content: const Text('Are you sure you want to reset today\'s water intake?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton.tonal(
+              onPressed: () {
+                resetWater();
+                Navigator.pop(context);
+              },
+              child: const Text('Reset'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int remaining = (dailyGoal - totalWater).clamp(0, dailyGoal);
+    double completion = ((totalWater / dailyGoal) * 100).clamp(0, 100);
+    double progress = (totalWater / dailyGoal).clamp(0, 1.0);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Smart Water Tracker', style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.blue.withOpacity(0.1),
+              ),
+              child: const Icon(Icons.water_drop, size: 80, color: Colors.blue),
+            ),
+            const SizedBox(height: 20),
+            Text('Daily Goal: $dailyGoal mL', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 20),
+            _buildStatCard(Icons.local_drink, 'Total Consumed', '$totalWater mL', Colors.blue),
+            _buildStatCard(Icons.water, 'Remaining', '$remaining mL', Colors.orange),
+            _buildStatCard(Icons.format_list_numbered, 'Entries', '$entryCount', Colors.green),
+            _buildStatCard(Icons.percent, 'Completion', '${completion.toStringAsFixed(0)}%', Colors.purple),
+            const SizedBox(height: 20),
+            LinearProgressIndicator(value: progress, minHeight: 12, borderRadius: BorderRadius.circular(6)),
+            const SizedBox(height: 30),
+            FilledButton.icon(
+              onPressed: () async {
+                final amount = await Navigator.push<int>(context, MaterialPageRoute(builder: (context) => const AddWaterPage()));
+                if (amount != null) addWater(amount);
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Add Water'),
+              style: FilledButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryPage(entries: waterEntries))),
+              icon: const Icon(Icons.history),
+              label: const Text('View History'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+            ),
+            const SizedBox(height: 10),
+            TextButton.icon(
+              onPressed: showResetConfirmation,
+              icon: const Icon(Icons.refresh, color: Colors.red),
+              label: const Text('Reset Today', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(IconData icon, String title, String value, Color color) {
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 10),
+      child: ListTile(
+        leading: Icon(icon, color: color),
+        title: Text(title),
+        trailing: Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+}
+
+class AddWaterPage extends StatefulWidget {
+  const AddWaterPage({super.key});
+  @override
+  State<AddWaterPage> createState() => _AddWaterPageState();
+}
+
+class _AddWaterPageState extends State<AddWaterPage> {
+  final TextEditingController waterController = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    waterController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Add Water')),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: waterController,
+                keyboardType: TextInputType.number,
+                autofocus: true,
+                decoration: const InputDecoration(labelText: 'Amount (mL)', border: OutlineInputBorder(), prefixIcon: Icon(Icons.water_drop)),
+                validator: (v) => (v == null || int.tryParse(v) == null || int.parse(v) <= 0) ? 'Enter valid amount > 0' : null,
+              ),
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: () {
+                  if (formKey.currentState!.validate()) Navigator.pop(context, int.parse(waterController.text));
+                },
+                child: const Text('Add to Log'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HistoryPage extends StatelessWidget {
+  final List<int> entries;
+  const HistoryPage({super.key, required this.entries});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('History')),
+      body: entries.isEmpty
+          ? const Center(child: Text('No entries yet.'))
+          : ListView.builder(
+              itemCount: entries.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: CircleAvatar(child: Text('${index + 1}')),
+                  title: Text('${entries[index]} mL'),
+                  trailing: const Icon(Icons.chevron_right),
+                );
+              },
+            ),
+    );
+  }
+}
